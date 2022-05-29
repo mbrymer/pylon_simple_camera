@@ -44,14 +44,14 @@ int main (int argc, char **argv)
     // Check pixel format is valid
     std::string gen_api_encoding(myCamera.PixelFormat.ToString().c_str());
     std::string ros_encoding("");
-    std::cout << "Pixel Format: " << myCamera.PixelFormat.ToString();
+    std::cout << "Pixel Format: " << myCamera.PixelFormat.ToString() << std::endl;
     if ( !genAPI2Ros(gen_api_encoding, ros_encoding) )
     {
-        std::cout << "Invalid pixel encoding format";
+        std::cout << "Invalid pixel encoding format" << std::endl;
     }
     else
     {
-        std::cout << "Camera initialized, beginning to take pictures:\n";
+        std::cout << "Camera initialized, beginning to take pictures:" << std::endl;
     }
 
     while (ros::ok())
@@ -69,12 +69,17 @@ int main (int argc, char **argv)
         if (grab_successful)
         {
             // Grab successful, populate image message and send it out
-            const uint8_t *pImageBuffer = reinterpret_cast<uint8_t*>(ptrGrabResult->GetBuffer());
+            const uint8_t* pImageBuffer = reinterpret_cast<uint8_t*>(ptrGrabResult->GetBuffer());
             
             // Grab image/pixel dimensions
             int n_cols = ptrGrabResult->GetWidth();
             int n_rows = ptrGrabResult->GetHeight();
-            int pixel_depth = myCamera.PixelSize.GetIntValue()/8; // Pixel size is in bits, convert to bytes
+            int pixel_depth = 2; // Fixed at UYVY -> 2 bytes per pixel
+
+            std::cout << "Pixel Depth: " << pixel_depth << std::endl;
+
+            std::cout << "First pixel values:" << std::to_string(pImageBuffer[0]) << "," << std::to_string(pImageBuffer[1])
+             << "," << std::to_string(pImageBuffer[2]) << "," << std::to_string(pImageBuffer[3]) << std::endl;
 
             // Populate image data
             image_msg.data.assign(pImageBuffer,pImageBuffer+n_cols*n_rows*pixel_depth);
@@ -172,7 +177,7 @@ bool genAPI2Ros(const std::string& gen_api_enc, std::string& ros_enc)
     {
         ros_enc = sensor_msgs::image_encodings::BAYER_GRBG16;
     }
-    else if ( gen_api_enc == "YUV422Packed" )
+    else if ( gen_api_enc == "YUV422Packed" || gen_api_enc == "YUV422_8_UYVY")
     {
         ros_enc = sensor_msgs::image_encodings::YUV422;
     }
