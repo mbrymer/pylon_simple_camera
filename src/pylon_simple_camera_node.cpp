@@ -9,6 +9,9 @@ Nearly zero input/error checking, use at your own risk
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/CameraInfo.h>
+#include <image_transport/image_transport.h>
+#include <image_transport/camera_publisher.h>
+#include <image_transport/camera_common.h>
 
 // Basler Pylon C++ API
 #include <pylon/PylonIncludes.h>
@@ -20,6 +23,7 @@ Nearly zero input/error checking, use at your own risk
 // Parameters
 std::string image_topic = "/basler_camera/image_raw";
 std::string camera_info_topic = "/basler_camera/camera_info";
+std::string camera_topic = "/basler_camera";
 int grab_timeout = 5000; // ms
 
 // Declarations
@@ -33,8 +37,11 @@ int main (int argc, char **argv)
     ros::NodeHandle node_pylon_camera;
 
     // Define publishers
-    ros::Publisher image_pub = node_pylon_camera.advertise<sensor_msgs::Image>(image_topic,1);
-    ros::Publisher camera_info_pub = node_pylon_camera.advertise<sensor_msgs::CameraInfo>(camera_info_topic,1);
+    // ros::Publisher image_pub = node_pylon_camera.advertise<sensor_msgs::Image>(image_topic,1);
+    // ros::Publisher camera_info_pub = node_pylon_camera.advertise<sensor_msgs::CameraInfo>(camera_info_topic,1);
+
+    image_transport::ImageTransport it_pylon_camera(node_pylon_camera);
+    image_transport::CameraPublisher camera_pub = it_pylon_camera.advertiseCamera(camera_topic,1);
 
     // Start up Pylon and camera
     Pylon::PylonAutoInitTerm pylon_autoterm;
@@ -100,8 +107,9 @@ int main (int argc, char **argv)
             camera_info_msg.header.stamp = stamp_now;
 
             // Publish image
-            image_pub.publish(image_msg);
-            camera_info_pub.publish(camera_info_msg);
+            // image_pub.publish(image_msg);
+            // camera_info_pub.publish(camera_info_msg);
+            camera_pub.publish(image_msg,camera_info_msg);
         }
         else
         {
