@@ -8,6 +8,7 @@ Nearly zero input/error checking, use at your own risk
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/CameraInfo.h>
 
 // Basler Pylon C++ API
 #include <pylon/PylonIncludes.h>
@@ -17,7 +18,8 @@ Nearly zero input/error checking, use at your own risk
 #include <string.h>
 
 // Parameters
-std::string image_topic = "image_raw";
+std::string image_topic = "/basler_camera/image_raw";
+std::string camera_info_topic = "/basler_camera/camera_info";
 int grab_timeout = 5000; // ms
 
 // Declarations
@@ -30,8 +32,9 @@ int main (int argc, char **argv)
     ros::init(argc, argv, "pylon_simple_camera");
     ros::NodeHandle node_pylon_camera;
 
-    // Define publisher
+    // Define publishers
     ros::Publisher image_pub = node_pylon_camera.advertise<sensor_msgs::Image>(image_topic,1);
+    ros::Publisher camera_info_pub = node_pylon_camera.advertise<sensor_msgs::CameraInfo>(camera_info_topic,1);
 
     // Start up Pylon and camera
     Pylon::PylonAutoInitTerm pylon_autoterm;
@@ -58,6 +61,7 @@ int main (int argc, char **argv)
     {
         // Initialize image message object
         sensor_msgs::Image image_msg;
+        sensor_msgs::CameraInfo camera_info_msg;
 
         // Grab image and put in .data field
         // bool grab_successful = grab_image(image_msg);
@@ -85,14 +89,19 @@ int main (int argc, char **argv)
             image_msg.data.assign(pImageBuffer,pImageBuffer+n_cols*n_rows*pixel_depth);
 
             // Populate image parameters
-            image_msg.header.stamp = ros::Time::now();
+            auto stamp_now = ros::Time::now();
+            image_msg.header.stamp = stamp_now;
             image_msg.height = n_rows;
             image_msg.width = n_cols;
             image_msg.step = n_cols*pixel_depth;
             image_msg.encoding = ros_encoding;
 
+            // Populate camera info
+            camera_info_msg.header.stamp = stamp_now;
+
             // Publish image
             image_pub.publish(image_msg);
+            camera_info_pub.publish(camera_info_msg);
         }
         else
         {
