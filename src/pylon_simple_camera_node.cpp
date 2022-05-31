@@ -98,6 +98,14 @@ int main (int argc, char **argv)
 
             // Populate camera info
             camera_info_msg.header.stamp = stamp_now;
+            camera_info_msg.height = 1944;
+            camera_info_msg.width = 2592;
+            camera_info_msg.K[0] = 8;
+            camera_info_msg.K[2] = 1296;
+            camera_info_msg.K[4] = 8;
+            camera_info_msg.K[5] = 972;
+            camera_info_msg.K[8] = 1;
+            camera_info_msg.distortion_model = "plumb_bob";
 
             // Publish image
             image_pub.publish(image_msg);
