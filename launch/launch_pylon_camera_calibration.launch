@@ -1,0 +1,4 @@
+<launch> 
+<node name="rosbag" pkg="rosbag" type="record"
+	args="record -o /home/$(env USER)/camera_calibration /basler_camera/image_raw" />
+</launch>

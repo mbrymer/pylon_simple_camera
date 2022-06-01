@@ -23,8 +23,10 @@ Nearly zero input/error checking, use at your own risk
 // Parameters
 std::string image_topic = "/basler_camera/image_raw";
 std::string camera_info_topic = "/basler_camera/camera_info";
-std::string camera_topic = "/basler_camera";
+std::string camera_topic = "/basler_camera/image_raw";
 int grab_timeout = 5000; // ms
+double run_rate = 10.; // Hz
+
 
 // Declarations
 // bool grab_image(sensor_msgs::Image& image_msg);
@@ -35,6 +37,9 @@ int main (int argc, char **argv)
     // Initialize node
     ros::init(argc, argv, "pylon_simple_camera");
     ros::NodeHandle node_pylon_camera;
+
+    // Run Rate
+    ros::Rate node_rate(run_rate);
 
     // Define publishers
     // ros::Publisher image_pub = node_pylon_camera.advertise<sensor_msgs::Image>(image_topic,1);
@@ -49,6 +54,13 @@ int main (int argc, char **argv)
     // Clear the default camera configuration, use values set on camera itself
     myCamera.RegisterConfiguration( (Pylon::CConfigurationEventHandler*) NULL, Pylon::RegistrationMode_ReplaceAll, Pylon::Cleanup_None);
     myCamera.Open();
+
+    // Decrease ROI. Hard coded for now just to figure out how this works
+    myCamera.Height.SetValue(1000);
+    myCamera.Width.SetValue(1600);
+    myCamera.OffsetX.SetValue(496);
+    myCamera.OffsetY.SetValue(472);
+
     myCamera.StartGrabbing(Pylon::GrabStrategy_LatestImageOnly);
 
     // Check pixel format is valid
@@ -105,12 +117,12 @@ int main (int argc, char **argv)
 
             // Populate camera info
             camera_info_msg.header.stamp = stamp_now;
-            camera_info_msg.height = 1944;
-            camera_info_msg.width = 2592;
-            camera_info_msg.K[0] = 8;
-            camera_info_msg.K[2] = 1296;
-            camera_info_msg.K[4] = 8;
-            camera_info_msg.K[5] = 972;
+            camera_info_msg.height = n_rows;
+            camera_info_msg.width = n_cols;
+            camera_info_msg.K[0] = 600;
+            camera_info_msg.K[2] = n_cols/2;
+            camera_info_msg.K[4] = 600;
+            camera_info_msg.K[5] = n_rows/2;
             camera_info_msg.K[8] = 1;
             camera_info_msg.distortion_model = "plumb_bob";
 
@@ -124,6 +136,7 @@ int main (int argc, char **argv)
             ROS_INFO("Camera image grab unsuccessful");
         }
         
+        node_rate.sleep(); // Wait for next cycle
     }
 
     // Clean up camera

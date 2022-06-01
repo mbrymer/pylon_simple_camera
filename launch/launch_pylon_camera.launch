@@ -1,0 +1,4 @@
+<launch> 
+  <node pkg="pylon_simple_camera" type="pylon_simple_camera" name="pylon_simple_camera" ns = "basler_camera" clear_params="true" output="screen" >
+  </node>
+</launch>
