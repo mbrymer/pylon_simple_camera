@@ -1,0 +1,8 @@
+cam0:
+  cam_overlaps: []
+  camera_model: pinhole
+  distortion_coeffs: [-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956]
+  distortion_model: radtan
+  intrinsics: [1775.6863472419932, 1776.8185379727229, 828.2282538567714, 529.7529387767097]
+  resolution: [1600, 1000]
+  rostopic: /basler_camera/image_color
