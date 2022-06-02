@@ -25,7 +25,17 @@ std::string image_topic = "/basler_camera/image_raw";
 std::string camera_info_topic = "/basler_camera/camera_info";
 std::string camera_topic = "/basler_camera/image_raw";
 int grab_timeout = 5000; // ms
-double run_rate = 10.; // Hz
+double run_rate = 5.; // Hz
+
+// Hard coded calibration parameters (move these to .yaml at some point)
+double K[] = {1775.6863472419932, 0, 828.2282538567714,
+                0, 1776.8185379727229, 529.7529387767097,
+                0,0,1}; // Intrinsics
+double D[] = {-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956,0}; // Distortion coefficients
+int image_width = 1600;
+int image_height = 1000;
+int image_offsetX = 496;
+int image_offsetY = 472;
 
 
 // Declarations
@@ -56,10 +66,10 @@ int main (int argc, char **argv)
     myCamera.Open();
 
     // Decrease ROI. Hard coded for now just to figure out how this works
-    myCamera.Height.SetValue(1000);
-    myCamera.Width.SetValue(1600);
-    myCamera.OffsetX.SetValue(496);
-    myCamera.OffsetY.SetValue(472);
+    myCamera.Height.SetValue(image_height);
+    myCamera.Width.SetValue(image_width);
+    myCamera.OffsetX.SetValue(image_offsetX);
+    myCamera.OffsetY.SetValue(image_offsetY);
 
     myCamera.StartGrabbing(Pylon::GrabStrategy_LatestImageOnly);
 
@@ -117,13 +127,20 @@ int main (int argc, char **argv)
 
             // Populate camera info
             camera_info_msg.header.stamp = stamp_now;
-            camera_info_msg.height = n_rows;
-            camera_info_msg.width = n_cols;
-            camera_info_msg.K[0] = 600;
-            camera_info_msg.K[2] = n_cols/2;
-            camera_info_msg.K[4] = 600;
-            camera_info_msg.K[5] = n_rows/2;
-            camera_info_msg.K[8] = 1;
+            camera_info_msg.height = image_height;
+            camera_info_msg.width = image_width;
+            camera_info_msg.K = {1775.6863472419932, 0, 828.2282538567714,
+                                0, 1776.8185379727229, 529.7529387767097,
+                                0,0,1}; // Intrinsics
+            camera_info_msg.P = {1775.6863472419932, 0, 828.2282538567714,0,
+                                0, 1776.8185379727229, 529.7529387767097,0,
+                                0,0,1,0}; // Intrinsics
+            camera_info_msg.R = {1,0,0,
+                                 0,1,0,
+                                 0,0,1}; // Rectification
+            camera_info_msg.D = {-0.3104266996245532, 0.13583691372392823,
+                                -0.0006515077009149717, 0.0002375047372993956, 0}; // Distortion coefficients
+            //{-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956,0}; // Distortion coefficients
             camera_info_msg.distortion_model = "plumb_bob";
 
             // Publish image
