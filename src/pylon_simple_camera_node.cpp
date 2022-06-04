@@ -25,18 +25,36 @@ std::string image_topic = "/basler_camera/image_raw";
 std::string camera_info_topic = "/basler_camera/camera_info";
 std::string camera_topic = "/basler_camera/image_raw";
 int grab_timeout = 5000; // ms
-double run_rate = 5.; // Hz
+double run_rate = 15.; // Hz
 
 // Hard coded calibration parameters (move these to .yaml at some point)
-double K[] = {1775.6863472419932, 0, 828.2282538567714,
-                0, 1776.8185379727229, 529.7529387767097,
-                0,0,1}; // Intrinsics
-double D[] = {-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956,0}; // Distortion coefficients
-int image_width = 1600;
-int image_height = 1000;
-int image_offsetX = 496;
-int image_offsetY = 472;
+// double K[] = {1775.6863472419932, 0, 828.2282538567714,
+//                 0, 1776.8185379727229, 529.7529387767097,
+//                 0,0,1}; // Intrinsics
 
+// double K[] = {1775.6863472419932, 0, 988,
+//                0, 1776.8185379727229, 568,
+//                0,0,1}; // Intrinsics
+
+double K[] = {1775.6863472419932, 0, 1324,
+                0, 1776.8185379727229, 1001,
+                0,0,1}; // Intrinsics
+
+double D[] = {-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956,0}; // Distortion coefficients
+// int image_width = 1600;
+// int image_height = 1000;
+// int image_offsetX = 496;
+// int image_offsetY = 472;
+
+// int image_width = 1920;
+// int image_height = 1080;
+// int image_offsetX = 752;
+// int image_offsetY = 432;
+
+int image_width = 2592;
+int image_height = 1944;
+int image_offsetX = 0;
+int image_offsetY = 0;
 
 // Declarations
 // bool grab_image(sensor_msgs::Image& image_msg);
@@ -129,11 +147,11 @@ int main (int argc, char **argv)
             camera_info_msg.header.stamp = stamp_now;
             camera_info_msg.height = image_height;
             camera_info_msg.width = image_width;
-            camera_info_msg.K = {1775.6863472419932, 0, 828.2282538567714,
-                                0, 1776.8185379727229, 529.7529387767097,
+            camera_info_msg.K = {1775.6863472419932, 0, 1324,
+                                0, 1776.8185379727229, 1001,
                                 0,0,1}; // Intrinsics
-            camera_info_msg.P = {1775.6863472419932, 0, 828.2282538567714,0,
-                                0, 1776.8185379727229, 529.7529387767097,0,
+            camera_info_msg.P = {1775.6863472419932, 0, 1324,0,
+                                0, 1776.8185379727229, 1001,0,
                                 0,0,1,0}; // Intrinsics
             camera_info_msg.R = {1,0,0,
                                  0,1,0,
