@@ -1,0 +1,17 @@
+# Pylon Simple Camera Parameters
+camera_topic: "/basler_camera/image_raw"
+camera_info_topic: "/basler_camera/camera_info"
+
+grab_timeout: 5000 # ms
+run_rate: 20.0 # Hz
+
+# Camera Calibration Parameters
+K: [443.75,0,331,0,443.75,250.25,0,0,1] # Intrinsics
+D: [-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956,0] # Distortion coefficients
+
+# Image Parameters
+image_width: 640
+image_height: 480
+image_offsetX: 0
+image_offsetY: 0
+use_scaling: True
