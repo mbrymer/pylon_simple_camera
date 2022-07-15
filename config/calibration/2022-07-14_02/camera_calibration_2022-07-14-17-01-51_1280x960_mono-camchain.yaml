@@ -1,0 +1,8 @@
+cam0:
+  cam_overlaps: []
+  camera_model: pinhole
+  distortion_coeffs: [-0.26622955209781596, 0.06762732592866116, 0.00046612063632965416, 0.0004221048462028046]
+  distortion_model: radtan
+  intrinsics: [871.9906751084765, 872.0246113369816, 652.744216628573, 475.440114645511]
+  resolution: [1280, 960]
+  rostopic: /basler_camera/image_mono
