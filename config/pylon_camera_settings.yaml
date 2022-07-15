@@ -6,12 +6,12 @@ grab_timeout: 5000 # ms
 run_rate: 20.0 # Hz
 
 # Camera Calibration Parameters
-K: [443.75,0,331,0,443.75,250.25,0,0,1] # Intrinsics
-D: [-0.3104266996245532, 0.13583691372392823, -0.0006515077009149717, 0.0002375047372993956,0] # Distortion coefficients
+K: [448.24317239815787,0,325.2550869383401,0,447.88113349903773,242.35179014468310,0,1] # Intrinsics
+D: [-0.27632825388178334, 0.0733041439096921, -0.00015408194536508488, -3.039378585093087e-05,0] # Distortion coefficients
 
 # Image Parameters
-image_width: 640
-image_height: 480
+image_width: 640 # Options 640, 1280, 2592
+image_height: 480 # Options 480, 960, 1944
 image_offsetX: 0
 image_offsetY: 0
 use_scaling: True
