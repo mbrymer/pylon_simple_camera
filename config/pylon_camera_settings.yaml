@@ -15,3 +15,5 @@ image_height: 480 # Options 480, 960, 1944
 image_offsetX: 0
 image_offsetY: 0
 use_scaling: True
+set_exposure_time: True
+exposure_time: 5000.0 # us

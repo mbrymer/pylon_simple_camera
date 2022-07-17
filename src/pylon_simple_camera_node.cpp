@@ -44,8 +44,10 @@ int main (int argc, char **argv)
     int image_height;
     int image_offsetX;
     int image_offsetY;
+    double exposure_time;
 
     bool use_scaling;
+    bool set_exposure_time;
 
     node_pylon_camera.param<std::string>("camera_topic",camera_topic,"/basler_camera/image_raw");
     node_pylon_camera.param<std::string>("camera_info_topic",camera_info_topic,"/basler_camera/camera_info");
@@ -56,8 +58,10 @@ int main (int argc, char **argv)
     node_pylon_camera.param<int>("image_height",image_height,480);
     node_pylon_camera.param<int>("image_offsetX",image_offsetX,0);
     node_pylon_camera.param<int>("image_offsetY",image_offsetY,0);
+    node_pylon_camera.param<double>("exposure_time",exposure_time,5000.0);
 
     node_pylon_camera.param<bool>("use_scaling",use_scaling,true);
+    node_pylon_camera.param<bool>("set_exposure_time",set_exposure_time,true);
 
     node_pylon_camera.getParam("K",K);
     node_pylon_camera.getParam("D",D);
@@ -86,6 +90,13 @@ int main (int argc, char **argv)
     // Limit Framerate
     myCamera.AcquisitionFrameRateEnable.SetValue(true);
     myCamera.AcquisitionFrameRate.SetValue(run_rate);
+
+    // Set Exposure Time
+    if (set_exposure_time)
+    {
+        myCamera.ExposureAuto.SetValue(Basler_UniversalCameraParams::ExposureAutoEnums::ExposureAuto_Off);
+        myCamera.ExposureTime.SetValue(exposure_time);
+    }
 
     // Enable downsampling
     GenApi::INodeMap& nodemap = myCamera.GetNodeMap();
