@@ -83,6 +83,10 @@ int main (int argc, char **argv)
     myCamera.OffsetX.SetValue(image_offsetX);
     myCamera.OffsetY.SetValue(image_offsetY);
 
+    // Limit Framerate
+    myCamera.AcquisitionFrameRateEnable.SetValue(true);
+    myCamera.AcquisitionFrameRate.SetValue(run_rate);
+
     // Enable downsampling
     GenApi::INodeMap& nodemap = myCamera.GetNodeMap();
     CBooleanParameter(nodemap, "BslScalingEnable").SetValue(use_scaling);
@@ -102,6 +106,8 @@ int main (int argc, char **argv)
         std::cout << "Camera initialized, beginning to take pictures:" << std::endl;
     }
 
+    auto time_lastgrab = ros::Time::now();
+
     while (ros::ok())
     {
         // Initialize image message object
@@ -109,8 +115,11 @@ int main (int argc, char **argv)
         sensor_msgs::CameraInfo camera_info_msg;
 
         // Create pointer to store captured image and grab image
+        // Set frame rate means RetrieveResult waits until the next image is available or timeout is exceeded
         Pylon::CBaslerUniversalGrabResultPtr ptrGrabResult;
+        // auto time_pregrab = ros::Time::now();
         bool grab_successful = myCamera.RetrieveResult(grab_timeout, ptrGrabResult, Pylon::TimeoutHandling_Return);
+        auto time_postgrab = ros::Time::now();
 
         if (grab_successful)
         {
@@ -122,24 +131,30 @@ int main (int argc, char **argv)
             int n_rows = ptrGrabResult->GetHeight();
             int pixel_depth = 2; // Fixed at UYVY -> 2 bytes per pixel
 
-            std::cout << "Pixel Depth: " << pixel_depth << std::endl;
+            // std::cout << "Pixel Depth: " << pixel_depth << std::endl;
+
+            std::cout << "Grab successful, time since last frame: " << std::to_string((time_postgrab-time_lastgrab).toSec()) << std::endl;
+            time_lastgrab = time_postgrab;
 
             std::cout << "First pixel values:" << std::to_string(pImageBuffer[0]) << "," << std::to_string(pImageBuffer[1])
              << "," << std::to_string(pImageBuffer[2]) << "," << std::to_string(pImageBuffer[3]) << std::endl;
 
+            // auto stamp_now = ros::Time::now();
+            // std::cout << "Grab successful, time since last frame: " << std::to_string((time_postgrab-time_lastgrab).toSec()) <<
+            // "total grab time: " << std::to_string((stamp_now-time_pregrab).toSec()) << std::endl;
+            
             // Populate image data
             image_msg.data.assign(pImageBuffer,pImageBuffer+n_cols*n_rows*pixel_depth);
 
             // Populate image parameters
-            auto stamp_now = ros::Time::now();
-            image_msg.header.stamp = stamp_now;
+            image_msg.header.stamp = time_postgrab;
             image_msg.height = n_rows;
             image_msg.width = n_cols;
             image_msg.step = n_cols*pixel_depth;
             image_msg.encoding = ros_encoding;
 
             // Populate camera info
-            camera_info_msg.header.stamp = stamp_now;
+            camera_info_msg.header.stamp = time_postgrab;
             camera_info_msg.height = image_height;
             camera_info_msg.width = image_width;
             camera_info_msg.K = {K[0], K[1], K[2],
@@ -161,9 +176,10 @@ int main (int argc, char **argv)
         else
         {
             ROS_INFO("Camera image grab unsuccessful");
+            // std::cout << "Camera image grab unsuccessful, wasted time:" << std::to_string((time_postgrab-time_pregrab).toSec()) << std::endl;
         }
         
-        node_rate.sleep(); // Wait for next cycle
+        // node_rate.sleep(); // Wait for next cycle
     }
 
     // Clean up camera
