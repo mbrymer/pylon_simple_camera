@@ -28,10 +28,11 @@
   	<arg name="node_namespace" default="apriltag_ros_continuous_node" />
   	<arg name="camera_name" default="/basler_camera" />
   	<arg name="image_topic" default="image_rect" />
+    <arg name="tag_defn" default="tags.yaml" />
 
 	<!-- Set parameters -->
   	<rosparam command="load" file="$(find pylon_simple_camera)/config/apriltag_settings.yaml" ns="$(arg node_namespace)" />
-  	<rosparam command="load" file="$(find pylon_simple_camera)/config/tags.yaml" ns="$(arg node_namespace)" />
+  	<rosparam command="load" file="$(find pylon_simple_camera)/config/$(arg tag_defn)" ns="$(arg node_namespace)" />
 
   	<node pkg="nodelet" type="nodelet" name="apriltag_ros_continuous_node" clear_params="true" output="screen" args="load apriltag_ros/ContinuousDetector image_proc_nodelet_manager">
 	
