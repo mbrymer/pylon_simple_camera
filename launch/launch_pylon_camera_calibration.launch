@@ -1,4 +1,19 @@
 <launch> 
-<node name="rosbag" pkg="rosbag" type="record"
-	args="record -o /home/$(env USER)/camera_calibration /basler_camera/image_raw" />
+
+    <!-- Image processing nodelets -->
+    <node pkg="nodelet" type="nodelet" name="image_proc_nodelet_manager" args="manager" />
+
+    <!-- Debayer -->
+    <node pkg="nodelet" type="nodelet" name="image_proc_debayer" args="load image_proc/debayer image_proc_nodelet_manager">
+        <!-- remap input topics -->
+        <remap from="image_raw" to="basler_camera/image_raw"/>
+
+        <!-- remap output topics -->
+        <remap from="image_mono" to="basler_camera/image_mono"/>
+        <remap from="image_color" to="basler_camera/image_color"/>
+    </node>
+
+	<!-- Record calibration data -->
+	<node name="rosbag" pkg="rosbag" type="record"
+		args="record -o /home/$(env USER)/camera_calibration /basler_camera/image_mono" />
 </launch>
