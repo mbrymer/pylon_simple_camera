@@ -1,7 +1,7 @@
 /*
 Simple ROS Driver Node for Basler daA-2500-60mci camera
-Mostly copy-pasta from Basler pylon-ros-camera repo
-Nearly zero input/error checking, use at your own risk
+Heavily borrowed from Basler pylon-ros-camera repo
+Minimal input/error checking, future work item
 */
 
 // ROS includes
